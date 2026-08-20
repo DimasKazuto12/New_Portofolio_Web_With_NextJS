@@ -19,7 +19,7 @@ export default function Hero({ settings }: { settings: SiteSettings | null }) {
                     <div className="absolute inset-0 rounded-full bg-gradient-to-br from-gold via-astral to-gold opacity-70 blur-[6px]" />
                     <div className="absolute inset-[3px] overflow-hidden rounded-full border-2 border-gold-bright/80 bg-void">
                         <Image
-                            src={settings?.photoUrl || ""}
+                            src={settings?.photoUrl || "/firefly.jpg"}
                             alt="Foto profil"
                             fill
                             sizes="144px"

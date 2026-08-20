@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import type { CertificateWithSkills, SiteSettings, Project } from "@/types";
-import Projects from "@/components/Projects";
 
 type CertForm = {
     title: string;

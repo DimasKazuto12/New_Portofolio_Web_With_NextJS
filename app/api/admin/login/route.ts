@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { hashPassword } from '@/lib/auth';
-import { error } from 'console';
 
 export async function POST(req: Request) {
     const { password } = await req.json();

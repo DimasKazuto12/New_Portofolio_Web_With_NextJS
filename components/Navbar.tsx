@@ -3,9 +3,9 @@
 const links = [
     { href: "#beranda", label: "Beranda", icon: "◆" },
     { href: "#tentang", label: "Tentang", icon: "✦" },
-    { href: "#beranda", label: "Beranda", icon: "★" },
-    { href: "#beranda", label: "Beranda", icon: "▲" },
-    { href: "#beranda", label: "Beranda", icon: "✉" },
+    { href: "#pencapaian", label: "Relik", icon: "★" },
+    { href: "#proyek", label: "Misi", icon: "▲" },
+    { href: "#kontak", label: "Kontak", icon: "✉" },
 ];
 
 export default function Navbar({ onOpenGame }: { onOpenGame: () => void }) {
