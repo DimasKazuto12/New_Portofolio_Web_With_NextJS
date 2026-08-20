@@ -4,7 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { isAuthorized } from '@/lib/auth';
 
 export async function GET() {
-    const data = await prisma.siteSettings.findUnique({ where: { id: 1 } });
+    const data = await prisma.siteSettings.upsert({ where: { id: 1 }, update: {}, create: {id: 1} });
     return NextResponse.json({ data });
 }
 
