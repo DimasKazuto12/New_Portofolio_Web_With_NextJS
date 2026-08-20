@@ -1,0 +1,20 @@
+import { NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
+import { prisma } from '@/lib/prisma';
+import { isAuthorized } from '@/lib/auth';
+
+export async function GET() {
+    const data = await prisma.siteSettings.findUnique({ where: { id: 1 } });
+    return NextResponse.json({ data });
+}
+
+export async function PUT(req: Request) {
+    const cookieStore = await cookies();
+    const session = cookieStore.get("admin_session")?.value;
+    if (!isAuthorized(session)) {
+        return NextResponse.json({ error: "Unathorized" }, { status: 401 });
+    }
+    const body = await req.json();
+    const data = await prisma.siteSettings.update({ where: {id: 1}, data: body });
+    return NextResponse.json({ data });
+}
