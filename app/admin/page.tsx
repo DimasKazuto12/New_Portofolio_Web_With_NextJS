@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { CertificateWithSkills, SiteSettings, Project } from "@/types";
+import type { CertificateWithSkills, SiteSettings, Project, Skill } from "@/types";
 
 type CertForm = {
     title: string;
@@ -146,7 +146,7 @@ function CertificatesTab() {
             description: item.description || "",
             link: item.link || "",
             sortOrder: item.sortOrder,
-            skills: item.skills.map((s) => s.name).join(", "),
+            skills: item.skills.map((s: Skill) => s.name).join(", "),
         });
     }
 
@@ -474,7 +474,9 @@ function SettingsTab() {
 
     if (!form) return <p className="text-ink-muted text-sm">Memuat...</p>;
 
-    const fields: [keyof SiteSettings, string][] = [
+    type EditableField = Exclude<keyof SiteSettings, "id" | symbol>
+
+    const fields: [EditableField, string][] = [
         ["name", "Nama"], ["role", "Peran / Jabatan"], ["tagline", "Tagline"],
         ["about", "Tentang Saya"], ["location", "Lokasi"], ["email", "Email"],
         ["github", "Link GitHub"], ["linkedin", "Link LinkedIn"], ["instagram", "Link Instagram"],

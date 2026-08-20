@@ -47,7 +47,7 @@ export default function Achievements({ items = [] }: { items: CertificateWithSki
                 <p className="mt-3 text-sm leading-relaxed text-ink-muted">{a.description}</p>
                 {a.skills.length > 0 && (
                   <div className="mt-3 flex flex-wrap gap-1.5">
-                    {a.skills.map((s) => (
+                    {a.skills.map((s: {id: string; name: string}) => (
                       <span key={s.id} className="rounded-sm border border-void-border px-2 py-0.5 font-mono text-[10px] text-ink-muted">
                         {s.name}
                       </span>
