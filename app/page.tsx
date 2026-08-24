@@ -11,15 +11,18 @@ import { prisma } from '@/lib/prisma';
 export const revalidate = 0;
 
 export default async function Home() {
-  const [settings, certificates, projects] = await Promise.all([
-    prisma.siteSettings.findUnique({ where: { id: 1 } }),
+  const [settings, certificates, projects, paths] = await Promise.all([
+    prisma.siteSettings.upsert({ where: { id: 1 }, update: {}, create: {id: 1} }),
     prisma.certificate.findMany({
       orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }],
       include: { skills: true },
     }),
     prisma.project.findMany({
-      orderBy: [{sortOrder: "asc"}, {createdAt: "desc"}],
+      orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }],
     }),
+    prisma.pathSkill.findMany({
+      orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }],
+    })
   ]);
 
   return (
@@ -27,7 +30,7 @@ export default async function Home() {
       <Starfield />
       <Appshell>
         <Hero settings={settings} />
-        <About settings={settings} />
+        <About settings={settings} paths={paths}/>
         <Achivements items={certificates} />
         <Projects projects={projects} />
         <ContactForm settings={settings} />

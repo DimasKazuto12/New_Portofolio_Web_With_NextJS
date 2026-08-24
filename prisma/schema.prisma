@@ -19,6 +19,7 @@ model Certificate {
   rarity      Int      @default(4)
   description String?
   link        String?
+  imageUrl    String?
   sortOrder   Int      @default(0)
   createdAt   DateTime @default(now())
   skills      Skill[]  @relation("CertificateSkills")
@@ -39,6 +40,15 @@ model Message {
   createdAt DateTime @default(now())
 }
 
+model PathSkill {
+  id        String   @id @default(uuid())
+  pathName  String   
+  skill     String   
+  detail    String   
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+}
+
 model Project {
   id          String   @id @default(uuid())
   code        String
@@ -46,6 +56,7 @@ model Project {
   description String
   stack       String[]
   link        String?
+  imageUrl    String?
   sortOrder   Int      @default(0)
   createdAt   DateTime @default(now())
 }

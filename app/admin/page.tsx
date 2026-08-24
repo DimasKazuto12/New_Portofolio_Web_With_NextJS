@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { CertificateWithSkills, SiteSettings, Project, Skill } from "@/types";
+import type { CertificateWithSkills, SiteSettings, Project, Skill, PathSkill } from "@/types";
+import ImageUploader from '@/components/admin/ImageUploader'
 
 type CertForm = {
     title: string;
@@ -12,17 +13,18 @@ type CertForm = {
     link: string;
     sortOrder: number;
     skills: string;
+    imageUrl: string;
 };
 
 const emptyCert: CertForm = {
-    title: "", issuer: "", date: "", rarity: 4, description: "", link: "", sortOrder: 0, skills: "",
+    title: "", issuer: "", date: "", rarity: 4, description: "", link: "", sortOrder: 0, skills: "", imageUrl: "",
 };
 
 export default function AdminPage() {
     const [authorized, setAuthorized] = useState<boolean | null>(null);
     const [password, setPassword] = useState("");
     const [loginError, setLoginError] = useState("");
-    const [tab, setTab] = useState<"certificates" | "projects" | "messages" | "settings">("certificates");
+    const [tab, setTab] = useState<"certificates" | "projects" | "paths" | "messages" | "settings">("certificates");
 
     useEffect(() => {
         fetch("/api/admin/check")
@@ -89,6 +91,7 @@ export default function AdminPage() {
                     {[
                         { id: "certificates" as const, label: "Sertifikat" },
                         { id: "projects" as const, label: "Proyek" },
+                        { id: "paths" as const, label: "Path/Skill" },
                         { id: "messages" as const, label: "Pesan Masuk" },
                         { id: "settings" as const, label: "Info Profil" },
                     ].map((t) => (
@@ -104,6 +107,7 @@ export default function AdminPage() {
 
                 {tab === "certificates" && <CertificatesTab />}
                 {tab === "projects" && <ProjectsTab />}
+                {tab === "paths" && <PathsTab />}
                 {tab === "messages" && <MessagesTab />}
                 {tab === "settings" && <SettingsTab />}
             </div>
@@ -147,6 +151,7 @@ function CertificatesTab() {
             link: item.link || "",
             sortOrder: item.sortOrder,
             skills: item.skills.map((s: Skill) => s.name).join(", "),
+            imageUrl: item.imageUrl || ""
         });
     }
 
@@ -187,6 +192,13 @@ function CertificatesTab() {
     return (
         <div>
             <form onSubmit={handleSubmit} className="hsr-panel px-5 py-5 mb-8 grid gap-4 sm:grid-cols-2 sm:px-6 sm:py-6">
+                <div className="sm:col-span-2">
+                    <ImageUploader
+                        label="Foto Sertifikat (opsional)"
+                        value={form.imageUrl}
+                        onChange={(url) => setForm((f) => ({ ...f, imageUrl: url }))}
+                    />
+                </div>
                 <input name="title" value={form.title} onChange={handleChange} placeholder="Judul sertifikat" required className="input" />
                 <input name="issuer" value={form.issuer} onChange={handleChange} placeholder="Penerbit" required className="input" />
                 <input name="date" value={form.date} onChange={handleChange} placeholder="Tahun (mis. 2025)" required className="input" />
@@ -252,10 +264,11 @@ type ProjectForm = {
     stack: string;
     link: string;
     sortOrder: number;
+    imageUrl: string;
 }
 
 const emptyProject: ProjectForm = {
-    code: "", title: "", description: "", stack: "", link: "", sortOrder: 0,
+    code: "", title: "", description: "", stack: "", link: "", sortOrder: 0, imageUrl: ""
 }
 
 function ProjectsTab() {
@@ -264,7 +277,7 @@ function ProjectsTab() {
     const [form, setForm] = useState<ProjectForm>(emptyProject);
     const [editingId, setEditingId] = useState<string | null>(null);
 
-     function load() {
+    function load() {
         return fetch("/api/projects")
             .then((res) => res.json())
             .then((d) => {
@@ -289,6 +302,7 @@ function ProjectsTab() {
             stack: item.stack.join(", "),
             link: item.link || "",
             sortOrder: item.sortOrder,
+            imageUrl: item.imageUrl || ""
         });
     }
 
@@ -329,6 +343,13 @@ function ProjectsTab() {
     return (
         <div>
             <form onSubmit={handleSubmit} className="hsr-panel px-5 py-5 mb-8 grid gap-4 sm:grid-cols-2 sm:px-6 sm:py-6">
+                <div className="sm:col-span-2">
+                    <ImageUploader
+                        label="Foto proyek (opsional)"
+                        value={form.imageUrl}
+                        onChange={(url) => setForm((f) => ({ ...f, imageUrl: url }))}
+                    />
+                </div>
                 <input name="code" value={form.code} onChange={handleChange} placeholder="Kode misi (mis. MISSION 01)" required className="input" />
                 <input name="title" value={form.title} onChange={handleChange} placeholder="Judul proyek" required className="input" />
                 <input name="link" value={form.link} onChange={handleChange} placeholder="Link (opsional)" className="input" />
@@ -382,6 +403,128 @@ function ProjectsTab() {
             )}
         </div>
     );
+}
+
+type PathForm = {
+  pathName: string;
+  skill: string;
+  detail: string;
+  sortOrder: number;
+};
+
+const emptyPath: PathForm = { pathName: "", skill: "", detail: "", sortOrder: 0 };
+
+function PathsTab() {
+  const [items, setItems] = useState<PathSkill[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [form, setForm] = useState<PathForm>(emptyPath);
+  const [editingId, setEditingId] = useState<string | null>(null);
+
+  function load() {
+    return fetch("/api/paths")
+      .then((res) => res.json())
+      .then((d) => {
+        setItems(d.data || []);
+        setLoading(false);
+      });
+  }
+
+  useEffect(() => {
+    load();
+  }, []);
+
+  function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const { name, value } = e.target;
+    setForm((f) => ({ ...f, [name]: name === "sortOrder" ? Number(value) : value }));
+  }
+
+  function startEdit(item: PathSkill) {
+    setEditingId(item.id);
+    setForm({
+      pathName: item.pathName,
+      skill: item.skill,
+      detail: item.detail,
+      sortOrder: item.sortOrder,
+    });
+  }
+
+  function cancelEdit() {
+    setEditingId(null);
+    setForm(emptyPath);
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (editingId) {
+      await fetch(`/api/paths/${editingId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+    } else {
+      await fetch("/api/paths", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+    }
+    cancelEdit();
+    load();
+  }
+
+  async function handleDelete(id: string) {
+    if (!confirm("Hapus path ini?")) return;
+    await fetch(`/api/paths/${id}`, { method: "DELETE" });
+    load();
+  }
+
+  return (
+    <div>
+      <form onSubmit={handleSubmit} className="hsr-panel px-5 py-5 mb-8 grid gap-4 sm:grid-cols-2 sm:px-6 sm:py-6">
+        <input name="pathName" value={form.pathName} onChange={handleChange} placeholder="Nama Path (mis. Destruction)" required className="input" />
+        <input name="skill" value={form.skill} onChange={handleChange} placeholder="Nama Skill (mis. Frontend Development)" required className="input" />
+        <input name="sortOrder" type="number" value={form.sortOrder} onChange={handleChange} placeholder="Urutan tampil" className="input" />
+        <input
+          name="detail"
+          value={form.detail}
+          onChange={handleChange}
+          placeholder="Detail (mis. React, Next.js, Tailwind)"
+          required
+          className="input sm:col-span-2"
+        />
+        <div className="sm:col-span-2 flex gap-3">
+          <button type="submit" className="rounded-sm bg-gold px-6 py-2 text-sm font-medium text-void hover:bg-gold-bright">
+            {editingId ? "Simpan Perubahan" : "Tambah Path"}
+          </button>
+          {editingId && (
+            <button type="button" onClick={cancelEdit} className="rounded-sm border border-void-border px-6 py-2 text-sm text-ink-muted hover:text-gold">
+              Batal
+            </button>
+          )}
+        </div>
+      </form>
+
+      {loading ? (
+        <p className="text-ink-muted text-sm">Memuat...</p>
+      ) : (
+        <div className="space-y-3">
+          {items.map((item) => (
+            <div key={item.id} className="hsr-panel px-5 py-4 flex items-center justify-between gap-4">
+              <div>
+                <p className="font-display">{item.pathName} — {item.skill}</p>
+                <p className="text-xs text-ink-muted">{item.detail}</p>
+              </div>
+              <div className="flex gap-2 shrink-0">
+                <button onClick={() => startEdit(item)} className="text-xs text-astral hover:text-gold-bright">Edit</button>
+                <button onClick={() => handleDelete(item.id)} className="text-xs text-red-400 hover:text-red-300">Hapus</button>
+              </div>
+            </div>
+          ))}
+          {items.length === 0 && <p className="text-ink-muted text-sm">Belum ada path/skill.</p>}
+        </div>
+      )}
+    </div>
+  );
 }
 
 type MessageItem = {
@@ -484,6 +627,11 @@ function SettingsTab() {
 
     return (
         <form onSubmit={handleSubmit} className="hsr-panel px-5 py-5 grid gap-4 sm:px-6 sm:py-6">
+            <ImageUploader
+                label="Foto Profil"
+                value={form.photoUrl || ""}
+                onChange={(url) => setForm((f) => (f ? { ...f, photoUrl: url } : f))}
+            />
             {fields.map(([name, label]) =>
                 name === "about" ? (
                     <div key={name}>
