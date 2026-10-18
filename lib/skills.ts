@@ -1,4 +1,3 @@
-import type { SkillGroup } from "@/components/Skills";
 
 export type SkillItem = { name: string; level: 1 | 2 | 3 | 4 | 5 };
 export type SkillGroup = { title: string; note?: string; skills: SkillItem[] };
