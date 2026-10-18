@@ -4,115 +4,204 @@
   color-scheme: dark;
 }
 
+@layer components {
+  .btn-gold {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border-radius: 2px;
+    background: var(--color-gold);
+    padding: 0.7rem 1.5rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    color: var(--color-void);
+    cursor: pointer;
+    transition: background 0.2s, box-shadow 0.2s, opacity 0.2s;
+  }
+  .btn-gold:hover:not(:disabled) {
+    background: var(--color-gold-bright);
+    box-shadow: 0 0 26px rgba(236, 210, 154, 0.4);
+  }
+  .btn-gold:disabled { opacity: 0.55; cursor: not-allowed; }
+
+  .btn-ghost {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    border: 1px solid var(--color-void-border);
+    border-radius: 2px;
+    padding: 0.4rem 0.8rem;
+    font-size: 0.8rem;
+    color: var(--color-ink-muted);
+    cursor: pointer;
+    transition: border-color 0.2s, color 0.2s;
+  }
+  .btn-ghost:hover { border-color: var(--color-gold); color: var(--color-gold-bright); }
+
+  .btn-danger {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    border: 1px solid rgba(248, 113, 113, 0.35);
+    border-radius: 2px;
+    padding: 0.4rem 0.8rem;
+    font-size: 0.8rem;
+    color: #f87171;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .btn-danger:hover:not(:disabled) { background: rgba(248, 113, 113, 0.12); }
+
+  /* Dropdown mengikuti tema */
+  select.input {
+    appearance: none;
+    padding-right: 2.5rem;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none' stroke='%23ecd29a' stroke-width='1.5'%3E%3Cpath d='M1 1.5l5 5 5-5'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+  }
+  select.input option { background: #11142a; }
+}
+
 @theme {
-  --color-void: #05060d;
-  --color-void-panel: #0c0f1c;
-  --color-void-border: #1c2138;
+  /* Palet disamakan dengan prototipe */
+  --color-void: #0a0c18;
+  --color-void-panel: #11142a;
+  --color-void-border: rgba(236, 210, 154, 0.2);
 
-  --color-gold: #cda45e;
-  --color-gold-dim: #8a6f3f;
-  --color-gold-bright: #e8c88a;
+  --color-gold: #ecd29a;
+  --color-gold-dim: #b8975a;
+  --color-gold-bright: #f5e0b0;
 
-  --color-astral: #8b7fd4;
-  --color-astral-dim: #514a86;
+  --color-astral: #b3a8ff;
+  --color-astral-dim: #7a6fd0;
 
   --color-stardust: #6fd6d1;
 
-  --color-ink-primary: #eae7f5;
-  --color-ink-muted: #8b8fa8;
-  --color-ink-faint: #565a76;
+  --color-ink-primary: #eeebf8;
+  --color-ink-muted: #b6b3cc;
+  --color-ink-faint: #8f8cab;
 
-  --font-display: var(--font-cinzel), serif;
-  --font-body: var(--font-inter), sans-serif;
+  --font-display: var(--font-cinzel), Georgia, serif;
+  --font-body: var(--font-inter), system-ui, sans-serif;
   --font-mono: var(--font-jetbrains-mono), monospace;
 }
 
+/* Latar: dua cahaya lembut di atas halaman (ungu dan emas), sama seperti prototipe.
+   Ditaruh di html supaya canvas Starfield (-z-10) tetap tampak di atasnya */
 html {
-  scroll-behavior: smooth;
+  background-color: var(--color-void);
+  background-image:
+    radial-gradient(900px 480px at 50% -80px, rgba(179, 168, 255, 0.16), transparent 70%),
+    radial-gradient(700px 380px at 50% 12%, rgba(236, 210, 154, 0.08), transparent 70%);
+  background-repeat: no-repeat;
+  scroll-padding-top: 80px;
+}
+
+body {
+  color: var(--color-ink-primary);
+  font-family: var(--font-body), system-ui, sans-serif;
+  line-height: 1.65;
+  overflow-x: clip;
+}
+
+::selection {
+  background: rgba(236, 210, 154, 0.3);
+  color: var(--color-ink-primary);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-gold-bright);
+  outline-offset: 3px;
 }
 
 * {
   scrollbar-width: thin;
   scrollbar-color: var(--color-gold-dim) var(--color-void);
 }
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: var(--color-void); }
+::-webkit-scrollbar-thumb { background: var(--color-gold-dim); border-radius: 4px; }
 
-::-webkit-scrollbar {
-  width: 8px;
+/* Dibungkus @layer components supaya class utilitas Tailwind (misalnya text-astral)
+   bisa menimpa warna bawaan class ini. Tanpa layer, CSS biasa selalu menang atas utilitas. */
+@layer components {
+  /* Panel: garis emas tipis, sudut siku emas di kiri atas dan kanan bawah */
+  .hsr-panel {
+    position: relative;
+    border: 1px solid var(--color-void-border);
+    border-radius: 4px;
+    background:
+      linear-gradient(160deg, rgba(236, 210, 154, 0.05), rgba(179, 168, 255, 0.06)),
+      var(--color-void-panel);
+  }
+  .hsr-panel::before,
+  .hsr-panel::after {
+    content: "";
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    pointer-events: none;
+    border: 0 solid var(--color-gold);
+  }
+  .hsr-panel::before {
+    top: 0;
+    left: 0;
+    border-top-width: 2px;
+    border-left-width: 2px;
+  }
+  .hsr-panel::after {
+    bottom: 0;
+    right: 0;
+    border-bottom-width: 2px;
+    border-right-width: 2px;
+  }
+
+  .hsr-eyebrow {
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--color-gold-dim);
+  }
+
+  .text-glow {
+    text-shadow: 0 0 24px rgba(236, 210, 154, 0.3);
+  }
+
+  .input {
+    width: 100%;
+    border: 1px solid var(--color-void-border);
+    background: #0a0c1a;
+    border-radius: 3px;
+    padding: 0.8rem 1rem;
+    font-size: 0.9rem;
+    color: var(--color-ink-primary);
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .input::placeholder { color: var(--color-ink-faint); }
+  .input:focus {
+    outline: none;
+    border-color: var(--color-gold);
+    box-shadow: 0 0 0 3px rgba(236, 210, 154, 0.15);
+  }
 }
 
-::-webkit-scrollbar-track {
-  background: var(--color-void);
+@layer utilities {
+  .pb-safe { padding-bottom: env(safe-area-inset-bottom, 0px); }
 }
 
-::-webkit-scrollbar-thumb {
-  background: var(--color-gold-dim);
-  border-radius: 4px;
-}
-
-.hsr-panel {
-  position: relative;
-  border: 1px solid var(--color-void-border);
-  background: linear-gradient(180deg, rgba(16, 20, 36, 0.7), rgba(12, 15, 28, 0.55));
-  backdrop-filter: blur(6px);
-}
-
-.hsr-panel::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  border: 1px solid transparent;
-  background: linear-gradient(135deg, rgba(205, 164, 94, 0.35), transparent 30%, transparent 70%, rgba(139, 127, 212, 0.25)) border-box;
-  -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
-  -webkit-mask-composite: exclude;
-}
-
-.hsr-eyebrow {
-  letter-spacing: 0.25em;
-  text-transform: uppercase;
-  font-family: var(--font-mono);
-  font-size: 0.68rem;
-  color: var(--color-gold);
-}
-
-.text-glow {
-  text-shadow: 0 0 24px rgba(205, 164, 94, 0.35);
-}
-
-.input {
-  border: 1px solid var(--color-void-border);
-  background: color-mix(in srgb, var(--color-void) 60%, transparent);
-  border-radius: 2px;
-  padding: 0.75rem 1rem;
-  font-size: 0.875rem;
-  color: var(--color-ink-primary);
-  width: 100%;
-}
-
-.input::placeholder {
-  color: var(--color-ink-faint);
-}
-
-.input:focus {
-  outline: none;
-  border-color: var(--color-gold);
-}
-
-.pb-safe {
-  padding-bottom: env(safe-area-inset-bottom, 0px);
+@media (prefers-reduced-motion: no-preference) {
+  html { scroll-behavior: smooth; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  html {scroll-behavior: auto;} 
-  *, *::before, *::after{
+  *, *::before, *::after {
     animation-duration: 0.001ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
   }
-}
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
 }

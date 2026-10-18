@@ -6,12 +6,14 @@ import Achivements from '@/components/Achivements';
 import Projects from '@/components/Projects';
 import ContactForm from '@/components/ContactForm';
 import Footer from '@/components/Footer';
+import Skills from "@/components/Skills";
+import { groupSkills } from "@/lib/skills";
 import { prisma } from '@/lib/prisma';
 
 export const revalidate = 0;
 
 export default async function Home() {
-  const [settings, certificates, projects, paths] = await Promise.all([
+  const [settings, certificates, projects, paths, skillRows] = await Promise.all([
     prisma.siteSettings.upsert({ where: { id: 1 }, update: {}, create: {id: 1} }),
     prisma.certificate.findMany({
       orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }],
@@ -22,7 +24,10 @@ export default async function Home() {
     }),
     prisma.pathSkill.findMany({
       orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }],
-    })
+    }),
+    prisma.techSkill.findMany({
+      orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }],
+    }),
   ]);
 
   return (
@@ -31,6 +36,7 @@ export default async function Home() {
       <Appshell>
         <Hero settings={settings} />
         <About settings={settings} paths={paths}/>
+        <Skills groups={groupSkills(skillRows)} />
         <Achivements items={certificates} />
         <Projects projects={projects} />
         <ContactForm settings={settings} />

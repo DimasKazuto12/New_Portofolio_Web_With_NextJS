@@ -11,13 +11,24 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { skills, ...rest } = await req.json();
+    const body = await req.json();
+    const { skills, ...rest } = body;
+    const skillArray: string[] = Array.isArray(skills) ? skills : [];
+
+    const current = await prisma.certificate.findUnique({
+        where: { id },
+        include: { skills: true },
+    });
+
+    const currentNames = current?.skills.map((s) => s.name) ?? [];
+    const toDisconnect = currentNames.filter((n) => !skillArray.includes(n));
     const data = await prisma.certificate.update({
         where: { id },
         data: {
             ...rest,
             skills: skills
                 ? {
+                    disconnect: toDisconnect.map((name) => ({ name })),
                     connectOrCreate: skills.map((name: string) => ({
                         where: { name },
                         create: { name },

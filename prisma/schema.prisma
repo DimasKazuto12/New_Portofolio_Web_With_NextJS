@@ -49,6 +49,15 @@ model PathSkill {
   createdAt DateTime @default(now())
 }
 
+model TechSkill {
+  id        String   @id @default(cuid())
+  name      String
+  category  String   // nama grup, mis. "Frontend". Grup dibentuk otomatis dari sini
+  level     Int      @default(3) // 1 = Dasar ... 5 = Mahir
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+}
+
 model Project {
   id          String   @id @default(uuid())
   code        String
