@@ -70,6 +70,19 @@ model Project {
   createdAt   DateTime @default(now())
 }
 
+model TimelineEntry {
+  id          String   @id @default(cuid())
+  kind        String   @default("pendidikan") // "pendidikan" atau "pengalaman"
+  title       String
+  subtitle    String
+  startYear   Int
+  endYear     Int?
+  description String?  // keterangan / gambaran singkat
+  highlights  String?  // poin-poin, satu per baris
+  learned     String?  // cerita: yang dipelajari
+  createdAt   DateTime @default(now())
+}
+
 model SiteSettings {
   id        Int     @id @default(1)
   name      String?

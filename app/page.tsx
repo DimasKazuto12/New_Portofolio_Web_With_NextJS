@@ -8,13 +8,14 @@ import ContactForm from '@/components/ContactForm';
 import Footer from '@/components/Footer';
 import Skills from "@/components/Skills";
 import { groupSkills } from "@/lib/skills";
+import Timeline from '@/components/Timeline';
 import { prisma } from '@/lib/prisma';
 
 export const revalidate = 0;
 
 export default async function Home() {
-  const [settings, certificates, projects, paths, skillRows] = await Promise.all([
-    prisma.siteSettings.upsert({ where: { id: 1 }, update: {}, create: {id: 1} }),
+  const [settings, certificates, projects, paths, skillRows, timelineRows] = await Promise.all([
+    prisma.siteSettings.upsert({ where: { id: 1 }, update: {}, create: { id: 1 } }),
     prisma.certificate.findMany({
       orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }],
       include: { skills: true },
@@ -28,17 +29,24 @@ export default async function Home() {
     prisma.techSkill.findMany({
       orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }],
     }),
+    prisma.timelineEntry.findMany({
+      orderBy: [{ startYear: "desc" }, { createdAt: "desc" }],
+    }),
   ]);
 
   return (
     <>
       <Starfield />
       <Appshell>
-        <Hero settings={settings} />
-        <About settings={settings} paths={paths}/>
+        <Hero
+          settings={settings}
+          chips={[...skillRows].sort((a, b) => b.level - a.level).slice(0, 4).map((s) => s.name)}
+        />
+        <About settings={settings} paths={paths} />
         <Skills groups={groupSkills(skillRows)} />
         <Achivements items={certificates} />
         <Projects projects={projects} />
+        <Timeline items={timelineRows} />
         <ContactForm settings={settings} />
       </Appshell>
       <Footer settings={settings} />

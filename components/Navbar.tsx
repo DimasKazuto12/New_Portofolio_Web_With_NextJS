@@ -9,6 +9,7 @@ const links = [
     { href: "#tentang", label: "Tentang", icon: "✦" },
     { href: "#pencapaian", label: "Relik", icon: "★" },
     { href: "#proyek", label: "Misi", icon: "▲" },
+    { href: "#riwayat", label: "Riwayat", icon: "◷", desktopOnly: true },
     { href: "#kontak", label: "Kontak", icon: "✉" },
 ];
 
@@ -99,7 +100,7 @@ export default function Navbar({ onOpenGame }: { onOpenGame: () => void }) {
             {/* Mobile: header atas */}
             <header className="fixed top-0 inset-x-0 z-40 flex items-center justify-between border-b border-void-border/60 bg-void/80 px-4 py-3 backdrop-blur-md md:hidden">
                 <span className="font-display text-xs tracking-[0.2em] text-gold-bright">TRAILBLAZE LOG</span>
-                <button onClick={onOpenGame} aria-label="Buka mini game rahasia" className="text-lg text-gold/70"><SiStarship size={19}/></button>
+                <button onClick={onOpenGame} aria-label="Buka mini game rahasia" className="text-lg text-gold/70"><SiStarship size={19} /></button>
             </header>
 
             {/* Mobile: menu bawah */}

@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Award, FolderKanban, Mail, MailOpen, Reply, Route, User, Layers } from "lucide-react";
+import { Award, FolderKanban, GraduationCap,  Mail, MailOpen, Reply, Route, User, Layers } from "lucide-react";
 import type { CertificateWithSkills, SiteSettings, Project, Skill, PathSkill, TechSkill } from "@/types";
 import ImageUploader from "@/components/admin/ImageUploader";
 import AdminLogin from "@/components/admin/AdminLogin";
@@ -15,6 +15,7 @@ import AdminShell, {
   type AdminTab,
 } from "@/components/admin/AdminShell";
 import AdminListItem, { ConfirmDelete } from "@/components/admin/AdminListItem";
+import type { TimelineRow } from "@/lib/timeline";
 
 const JSON_HEADERS = { "Content-Type": "application/json" };
 
@@ -107,7 +108,7 @@ function FormActions({
 const errText = (e: unknown) => (e instanceof Error ? e.message : "Terjadi kesalahan.");
 const toTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
 
-type TabId = "certificates" | "projects" | "paths"| "skills" | "messages" | "settings";
+type TabId = "certificates" | "projects" | "paths"| "skills" | "timeline" | "messages" | "settings";
 
 export default function AdminPage() {
   const [authorized, setAuthorized] = useState<boolean | null>(null);
@@ -171,6 +172,7 @@ export default function AdminPage() {
     { id: "projects", label: "Proyek", icon: FolderKanban },
     { id: "paths", label: "Peran", icon: Route },
     { id: "skills", label: "Skill", icon: Layers },
+    { id: "timeline", label: "Riwayat", icon: GraduationCap },
     { id: "messages", label: "Pesan Masuk", icon: Mail, badge: unread },
     { id: "settings", label: "Info Profil", icon: User },
   ];
@@ -181,6 +183,7 @@ export default function AdminPage() {
       {tab === "projects" && <ProjectsTab />}
       {tab === "paths" && <PathsTab />}
       {tab === "skills" && <SkillsTab />}
+      {tab === "timeline" && <TimelineTab />}
       {tab === "messages" && <MessagesTab onUnread={setUnread} />}
       {tab === "settings" && <SettingsTab />}
     </AdminShell>
@@ -453,6 +456,213 @@ function ProjectsTab() {
               title={item.title}
               subtitle={`${item.code} · ${item.stack.join(", ")}`}
               imageUrl={item.imageUrl}
+              onEdit={() => startEdit(item)}
+              onDelete={() => handleDelete(item.id)}
+            />
+          ))}
+        </AdminList>
+      }
+    />
+  );
+}
+
+/* ===================== RIWAYAT (pendidikan & pengalaman) ===================== */
+
+type TimelineForm = {
+  kind: "pendidikan" | "pengalaman";
+  title: string;
+  subtitle: string;
+  startYear: string;
+  endYear: string; // kosong = masih berjalan
+  description: string;
+  highlights: string;
+  learned: string;
+};
+
+const emptyTimeline: TimelineForm = {
+  kind: "pendidikan", title: "", subtitle: "", startYear: "", endYear: "", description: "", highlights: "", learned: "",
+};
+const KIND_LABEL = { pendidikan: "Pendidikan", pengalaman: "Pengalaman" } as const;
+
+function TimelineTab() {
+  const { items, loading, load } = useList<TimelineRow>("/api/timeline");
+  const [form, setForm] = useState<TimelineForm>(emptyTimeline);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [flash, setFlash] = useFlash();
+
+  const edu = form.kind === "pendidikan";
+
+  function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
+    const { name, value } = e.target;
+    setForm((f) => ({ ...f, [name]: value }));
+  }
+
+  function startEdit(item: TimelineRow) {
+    setEditingId(item.id);
+    setForm({
+      kind: item.kind === "pengalaman" ? "pengalaman" : "pendidikan",
+      title: item.title,
+      subtitle: item.subtitle,
+      startYear: String(item.startYear),
+      endYear: item.endYear === null ? "" : String(item.endYear),
+      description: item.description || "",
+      highlights: item.highlights || "",
+      learned: item.learned || "",
+    });
+    toTop();
+  }
+
+  function cancelEdit() {
+    setEditingId(null);
+    setForm(emptyTimeline);
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setSaving(true);
+    const wasEditing = !!editingId;
+    const keepKind = form.kind;
+    const payload = {
+      ...form,
+      startYear: Number(form.startYear),
+      endYear: form.endYear.trim() === "" ? null : Number(form.endYear),
+    };
+    try {
+      if (editingId) await send(`/api/timeline/${editingId}`, "PUT", payload);
+      else await send("/api/timeline", "POST", payload);
+      setFlash({ ok: true, text: wasEditing ? "Perubahan disimpan." : "Riwayat ditambahkan." });
+      cancelEdit();
+      if (!wasEditing) setForm({ ...emptyTimeline, kind: keepKind });
+      await load();
+    } catch (err) {
+      setFlash({ ok: false, text: errText(err) });
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function handleDelete(id: string) {
+    try {
+      await send(`/api/timeline/${id}`, "DELETE");
+      if (editingId === id) cancelEdit();
+      await load();
+    } catch (err) {
+      setFlash({ ok: false, text: errText(err) });
+    }
+  }
+
+  if (loading) return <AdminSkeleton />;
+
+  return (
+    <AdminSection
+      eyebrow="Trailblaze Journey"
+      title={editingId ? "Edit Riwayat" : "Tambah Riwayat"}
+      description="Urutan tampil otomatis dari tahun mulai terbaru. Kosongkan tahun selesai kalau masih berjalan."
+      listTitle="Daftar Riwayat"
+      count={items.length}
+      form={
+        <form onSubmit={handleSubmit} className="grid gap-5 sm:grid-cols-2">
+          <Field label="Jenis" className="sm:col-span-2">
+            <div role="radiogroup" aria-label="Jenis riwayat" className="flex gap-2">
+              {(["pendidikan", "pengalaman"] as const).map((k) => {
+                const on = form.kind === k;
+                return (
+                  <button
+                    key={k}
+                    type="button"
+                    role="radio"
+                    aria-checked={on}
+                    onClick={() => setForm((f) => ({ ...f, kind: k }))}
+                    className={`flex-1 rounded-sm border px-3 py-2.5 text-sm transition-colors ${
+                      on ? "border-gold bg-gold/15 text-gold-bright" : "border-void-border text-ink-muted hover:border-gold/60"
+                    }`}
+                  >
+                    {KIND_LABEL[k]}
+                  </button>
+                );
+              })}
+            </div>
+          </Field>
+
+          <Field label={edu ? "Nama sekolah / kampus" : "Nama perusahaan / tempat kerja"} htmlFor="t-title" className="sm:col-span-2">
+            <input id="t-title" name="title" value={form.title} onChange={handleChange} required maxLength={100} className="input" />
+          </Field>
+          <Field label={edu ? "Jurusan / program studi" : "Posisi: bekerja sebagai apa"} htmlFor="t-sub" className="sm:col-span-2">
+            <input
+              id="t-sub"
+              name="subtitle"
+              value={form.subtitle}
+              onChange={handleChange}
+              required
+              maxLength={100}
+              placeholder={edu ? "" : "mis. nama jabatan atau peranmu"}
+              className="input"
+            />
+          </Field>
+
+          <Field label="Tahun mulai" htmlFor="t-start">
+            <input id="t-start" name="startYear" type="number" inputMode="numeric" value={form.startYear} onChange={handleChange} placeholder="mis. 2023" required className="input" />
+          </Field>
+          <Field label="Tahun selesai" htmlFor="t-end">
+            <input id="t-end" name="endYear" type="number" inputMode="numeric" value={form.endYear} onChange={handleChange} placeholder="Kosongkan jika masih berjalan" className="input" />
+          </Field>
+
+          <Field label={edu ? "Keterangan (opsional)" : "Gambaran singkat tempat kerja (opsional)"} htmlFor="t-desc" className="sm:col-span-2">
+            <textarea
+              id="t-desc"
+              name="description"
+              value={form.description}
+              onChange={handleChange}
+              rows={3}
+              maxLength={600}
+              placeholder={edu ? "mis. fokus belajar, kegiatan, atau konteks lain" : "mis. bergerak di bidang apa dan kamu berada di tim apa"}
+              className="input"
+            />
+          </Field>
+
+          <Field
+            label={edu ? "Pencapaian (satu poin per baris)" : "Yang saya kerjakan (satu poin per baris)"}
+            htmlFor="t-high"
+            className="sm:col-span-2"
+          >
+            <textarea
+              id="t-high"
+              name="highlights"
+              value={form.highlights}
+              onChange={handleChange}
+              rows={5}
+              maxLength={1500}
+              placeholder={edu ? "Tulis satu pencapaian di tiap baris" : "Tulis satu pekerjaan atau tanggung jawab di tiap baris"}
+              className="input"
+            />
+            <p className="mt-2 text-xs text-ink-muted">Maksimal 12 baris, tiap baris maksimal 200 karakter.</p>
+          </Field>
+
+          <Field label={edu ? "Yang saya pelajari / kesan (opsional)" : "Yang saya pelajari (ceritakan)"} htmlFor="t-learn" className="sm:col-span-2">
+            <textarea
+              id="t-learn"
+              name="learned"
+              value={form.learned}
+              onChange={handleChange}
+              rows={5}
+              maxLength={2000}
+              placeholder={edu ? "Ceritakan apa yang kamu dapat dari sini" : "Ceritakan dengan kata-katamu sendiri: apa yang kamu pelajari dan bagaimana itu mengubahmu"}
+              className="input"
+            />
+          </Field>
+
+          <FormActions editing={!!editingId} addLabel="Tambah Riwayat" saving={saving} flash={flash} onCancel={cancelEdit} />
+        </form>
+      }
+      list={
+        <AdminList empty="Belum ada riwayat.">
+          {items.map((item) => (
+            <AdminListItem
+              key={item.id}
+              thumb={false}
+              title={item.title}
+              subtitle={`${KIND_LABEL[item.kind as keyof typeof KIND_LABEL] ?? item.kind} · ${item.subtitle} · ${item.startYear}–${item.endYear ?? "Sekarang"}`}
               onEdit={() => startEdit(item)}
               onDelete={() => handleDelete(item.id)}
             />
