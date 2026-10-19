@@ -9,6 +9,7 @@ import Footer from '@/components/Footer';
 import Skills from "@/components/Skills";
 import { groupSkills } from "@/lib/skills";
 import Timeline from '@/components/Timeline';
+import Band from '@/components/Band';
 import { prisma } from '@/lib/prisma';
 
 export const revalidate = 0;
@@ -42,12 +43,14 @@ export default async function Home() {
           settings={settings}
           chips={[...skillRows].sort((a, b) => b.level - a.level).slice(0, 4).map((s) => s.name)}
         />
-        <About settings={settings} paths={paths} />
-        <Skills groups={groupSkills(skillRows)} />
-        <Achivements items={certificates} />
-        <Projects projects={projects} />
+        <Band tone="astral"><About settings={settings} paths={paths} /></Band>
+        {skillRows.length > 0 && (
+          <Band tone="gold"><Skills groups={groupSkills(skillRows)} /></Band>
+        )}
+        <Band tone="astral"><Achivements items={certificates} /></Band>
+        <Band tone="gold"><Projects projects={projects} /></Band>
         <Timeline items={timelineRows} />
-        <ContactForm settings={settings} />
+        <Band tone="astral"><ContactForm settings={settings} /></Band>
       </Appshell>
       <Footer settings={settings} />
     </>

@@ -91,7 +91,7 @@ export default function Hero({
     return (
         <section
             id="beranda"
-            className="relative flex min-h-[100svh] items-center overflow-hidden pt-24 pb-24 lg:pt-30 lg:pb-20"
+            className="relative flex min-h-[100svh] items-center overflow-hidden pt-24 pb-24 lg:pt-28 lg:pb-20"
         >
             {/* ===== Lapisan latar ===== */}
             <div aria-hidden className="pointer-events-none absolute inset-0">
@@ -100,14 +100,6 @@ export default function Hero({
                 {/* Grid tipis yang memudar ke tepi */}
                 <div className="absolute inset-0 bg-[linear-gradient(rgba(236,210,154,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(236,210,154,0.05)_1px,transparent_1px)] bg-[size:56px_56px] [-webkit-mask-image:radial-gradient(ellipse_70%_60%_at_60%_50%,black,transparent)] [mask-image:radial-gradient(ellipse_70%_60%_at_60%_50%,black,transparent)]" />
 
-                {/* Cahaya emas di belakang nama */}
-                <div className="absolute left-0 top-1/3 h-72 w-72 rounded-full bg-gold/10 blur-3xl" />
-
-                {/* Bingkai sudut ala HUD */}
-                <span className="absolute left-5 top-24 hidden h-6 w-6 border-l border-t border-gold/40 lg:block" />
-                <span className="absolute right-5 top-24 hidden h-6 w-6 border-r border-t border-gold/40 lg:block" />
-                <span className="absolute bottom-5 left-5 hidden h-6 w-6 border-b border-l border-gold/40 lg:block" />
-                <span className="absolute bottom-5 right-5 hidden h-6 w-6 border-b border-r border-gold/40 lg:block" />
             </div>
 
             {/* ===== Isi ===== */}

@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Award, FolderKanban, GraduationCap,  Mail, MailOpen, Reply, Route, User, Layers } from "lucide-react";
+import { Award, FolderKanban, GraduationCap, Mail, MailOpen, Reply, Route, User, Layers } from "lucide-react";
 import type { CertificateWithSkills, SiteSettings, Project, Skill, PathSkill, TechSkill } from "@/types";
 import ImageUploader from "@/components/admin/ImageUploader";
 import AdminLogin from "@/components/admin/AdminLogin";
@@ -108,7 +108,7 @@ function FormActions({
 const errText = (e: unknown) => (e instanceof Error ? e.message : "Terjadi kesalahan.");
 const toTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
 
-type TabId = "certificates" | "projects" | "paths"| "skills" | "timeline" | "messages" | "settings";
+type TabId = "certificates" | "projects" | "paths" | "skills" | "timeline" | "messages" | "settings";
 
 export default function AdminPage() {
   const [authorized, setAuthorized] = useState<boolean | null>(null);
@@ -129,7 +129,7 @@ export default function AdminPage() {
     fetch("/api/messages")
       .then((r) => r.json())
       .then((d) => setUnread((d.data || []).filter((m: { isRead: boolean }) => !m.isRead).length))
-      .catch(() => {});
+      .catch(() => { });
   }, [authorized]);
 
   async function handleLogin(password: string) {
@@ -574,9 +574,8 @@ function TimelineTab() {
                     role="radio"
                     aria-checked={on}
                     onClick={() => setForm((f) => ({ ...f, kind: k }))}
-                    className={`flex-1 rounded-sm border px-3 py-2.5 text-sm transition-colors ${
-                      on ? "border-gold bg-gold/15 text-gold-bright" : "border-void-border text-ink-muted hover:border-gold/60"
-                    }`}
+                    className={`flex-1 rounded-sm border px-3 py-2.5 text-sm transition-colors ${on ? "border-gold bg-gold/15 text-gold-bright" : "border-void-border text-ink-muted hover:border-gold/60"
+                      }`}
                   >
                     {KIND_LABEL[k]}
                   </button>
@@ -874,9 +873,8 @@ function SkillsTab() {
                     role="radio"
                     aria-checked={on}
                     onClick={() => setForm((f) => ({ ...f, level: n }))}
-                    className={`flex-1 rounded-sm border px-2 py-2.5 text-xs transition-colors ${
-                      on ? "border-gold bg-gold/15 text-gold-bright" : "border-void-border text-ink-muted hover:border-gold/60"
-                    }`}
+                    className={`flex-1 rounded-sm border px-2 py-2.5 text-xs transition-colors ${on ? "border-gold bg-gold/15 text-gold-bright" : "border-void-border text-ink-muted hover:border-gold/60"
+                      }`}
                   >
                     <span className="block text-[10px] tracking-widest">{"◆".repeat(n)}</span>
                     {label}
@@ -1049,6 +1047,8 @@ function SettingsTab() {
     ["github", "Link GitHub", false],
     ["linkedin", "Link LinkedIn", false],
     ["instagram", "Link Instagram", true],
+    ["availability", "Status ketersediaan", true],
+    ["cvUrl", "Link CV (PDF)", true],
   ];
 
   return (

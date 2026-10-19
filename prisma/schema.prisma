@@ -95,4 +95,6 @@ model SiteSettings {
   github    String?
   linkedin  String?
   instagram String?
+  cvUrl        String?
+  availability String?
 }

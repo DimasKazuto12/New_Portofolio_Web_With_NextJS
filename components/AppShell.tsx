@@ -22,6 +22,10 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                 Lewati ke konten
             </a>
 
+            <div
+                aria-hidden
+                className="pointer-events-none fixed inset-0 -z-[9] bg-[linear-gradient(rgba(236,210,154,0.035)_1px,transparent_1px),linear-gradient(90deg,rgba(236,210,154,0.035)_1px,transparent_1px)] bg-[size:56px_56px] [-webkit-mask-image:radial-gradient(ellipse_85%_75%_at_50%_30%,black,transparent)] [mask-image:radial-gradient(ellipse_85%_75%_at_50%_30%,black,transparent)]"
+            />
             <Navbar onOpenGame={openGame} />
             <main id="konten" className="pb-20 md:pb-0">{children}</main>
             <EasterEggGame open={gameOpen} onClose={closeGame} />

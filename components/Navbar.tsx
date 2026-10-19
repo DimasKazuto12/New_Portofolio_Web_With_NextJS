@@ -7,6 +7,7 @@ import { SiStarship } from "@icons-pack/react-simple-icons";
 const links = [
     { href: "#beranda", label: "Beranda", icon: "◆" },
     { href: "#tentang", label: "Tentang", icon: "✦" },
+    { href: "#skill", label: "Skill", icon: "◈", desktopOnly: true },
     { href: "#pencapaian", label: "Relik", icon: "★" },
     { href: "#proyek", label: "Misi", icon: "▲" },
     { href: "#riwayat", label: "Riwayat", icon: "◷", desktopOnly: true },
